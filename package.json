@@ -27,8 +27,11 @@
     "async": "^2.6.0",
     "axios": "^0.17.1",
     "body-parser": "^1.18.2",
+    "bootstrap": "^4.0.0-beta.2",
     "express": "^4.16.2",
     "express-handlebars": "^3.0.0",
-    "morgan": "^1.9.0"
+    "jquery": "^3.2.1",
+    "morgan": "^1.9.0",
+    "popper.js": "^1.12.9"
   }
 }
