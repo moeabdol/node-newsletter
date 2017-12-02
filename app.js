@@ -7,6 +7,9 @@ const axios      = require('axios');
 const async      = require('async');
 const hbs        = require('express-handlebars');
 const path       = require('path');
+const session    = require('express-session');
+const flash      = require('express-flash');
+const MongoStore = require('connect-mongo')(session);
 
 const app = express();
 const PORT = 3000;
@@ -25,9 +28,18 @@ app.engine('hbs', hbs({
 }));
 app.set('view engine', 'hbs');
 
+app.use(session({
+  resave: true,
+  saveUninitialized: true,
+  secret: process.env.SECRET,
+  store: new MongoStore({ url: process.env.DB })
+}));
+
+app.use(flash());
+
 app.route('/')
   .get((req, res) => {
-    res.render('home');
+    res.render('home', { message: req.flash('success') });
   })
   .post((req, res, next) => {
     const key = process.env.MAILCHIMP_KEY;
@@ -42,7 +54,11 @@ app.route('/')
         'Content-Type': 'application/json'
       }
     })
-      .then(() => res.redirect('/'))
+      .then(() => {
+        req.flash('success', `You have successfully subscribed to the
+          newsletter`);
+        res.redirect('/');
+      })
       .catch(err => next(err));
   });
 
