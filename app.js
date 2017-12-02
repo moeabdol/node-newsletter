@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express    = require('express');
 const bodyParser = require('body-parser');
 const morgan     = require('morgan');
@@ -23,9 +25,26 @@ app.engine('hbs', hbs({
 }));
 app.set('view engine', 'hbs');
 
-app.get('/', (req, res) => {
-  res.render('home');
-});
+app.route('/')
+  .get((req, res) => {
+    res.render('home');
+  })
+  .post((req, res, next) => {
+    const key = process.env.MAILCHIMP_KEY;
+    const listId = process.env.MAILCHIMP_LIST_ID;
+
+    axios.post(`https://us17.api.mailchimp.com/3.0/lists/${listId}/members`, {
+      email_address: req.body.email,
+      status: 'subscribed'
+    }, {
+      headers: {
+        'Authorization': `randomUser ${key}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(() => res.redirect('/'))
+      .catch(err => next(err));
+  });
 
 app.listen(PORT, err => {
   if (err) return console.log(err);
